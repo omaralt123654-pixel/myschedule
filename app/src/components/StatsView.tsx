@@ -4,29 +4,37 @@ import WeeklyProgress from './WeeklyProgress';
 import TopHabits from './TopHabits';
 import DailyProgressGraph from './DailyProgressGraph';
 import AnalysisTable from './AnalysisTable';
-import { getOverallCompletion } from '@/data/mockData';
+import { getOverallCompletion, getWeekStats, getHabitRankings, getGoalTotals } from '@/lib/stats';
+import type { Habit, DayStats } from '@/types';
 
-export default function StatsView() {
-  const overallCompletion = getOverallCompletion();
+interface StatsViewProps {
+  habits: Habit[];
+  year: number;
+  month: number;
+  dayStats: DayStats[];
+}
+
+export default function StatsView({ habits, year, month, dayStats }: StatsViewProps) {
+  const overallCompletion = getOverallCompletion(dayStats);
+  const weekStats = getWeekStats(dayStats);
+  const rankings = getHabitRankings(habits, year, month);
+  const goalTotals = getGoalTotals(dayStats);
 
   return (
     <div className="flex-1 bg-[#000000] overflow-auto">
       <div className="flex h-full">
         {/* Main stats area */}
         <div className="flex-1 flex flex-col">
-          {/* Daily progress graph at top */}
-          <DailyProgressGraph />
-
-          {/* Analysis table below */}
-          <AnalysisTable />
+          <DailyProgressGraph dayStats={dayStats} />
+          <AnalysisTable dayStats={dayStats} />
         </div>
 
         {/* Right sidebar with summary stats */}
         <div className="w-[200px] border-l border-[#444444] bg-[#111111] flex flex-col gap-3 p-3 overflow-y-auto">
           <DonutChart percentage={overallCompletion} />
-          <GoalBox />
-          <WeeklyProgress />
-          <TopHabits />
+          <GoalBox {...goalTotals} />
+          <WeeklyProgress weekStats={weekStats} />
+          <TopHabits rankings={rankings} />
         </div>
       </div>
     </div>

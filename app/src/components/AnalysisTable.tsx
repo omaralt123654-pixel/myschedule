@@ -1,12 +1,20 @@
-import { useState } from 'react';
-import { DAY_STATS } from '@/data/mockData';
+import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import type { DayStats } from '@/types';
 
-export default function AnalysisTable() {
+interface AnalysisTableProps {
+  dayStats: DayStats[];
+}
+
+export default function AnalysisTable({ dayStats }: AnalysisTableProps) {
   const [page, setPage] = useState(0);
   const itemsPerPage = 10;
-  const totalPages = Math.ceil(DAY_STATS.length / itemsPerPage);
-  const paginatedStats = DAY_STATS.slice(page * itemsPerPage, (page + 1) * itemsPerPage);
+  const totalPages = Math.max(1, Math.ceil(dayStats.length / itemsPerPage));
+  const paginatedStats = dayStats.slice(page * itemsPerPage, (page + 1) * itemsPerPage);
+
+  useEffect(() => {
+    setPage(0);
+  }, [dayStats]);
 
   const getProgressColor = (progress: number): string => {
     if (progress === 100) return 'text-[#2F80FF]';
@@ -40,7 +48,6 @@ export default function AnalysisTable() {
       </div>
 
       <div className="border border-[#444444]">
-        {/* Header */}
         <div className="flex bg-[#1a1a1a] border-b border-[#444444]">
           <div className="w-16 px-3 py-2 text-[10px] text-[#CFCFCF] uppercase border-r border-[#444444]">Day</div>
           <div className="flex-1 px-3 py-2 text-[10px] text-[#CFCFCF] uppercase border-r border-[#444444]">Actual</div>
@@ -48,7 +55,6 @@ export default function AnalysisTable() {
           <div className="w-20 px-3 py-2 text-[10px] text-[#CFCFCF] uppercase">Progress %</div>
         </div>
 
-        {/* Rows */}
         {paginatedStats.map((day) => (
           <div key={day.day} className="flex border-b border-[#444444] last:border-b-0 hover:bg-[#1a1a1a] transition-colors">
             <div className="w-16 px-3 py-2 text-xs text-white border-r border-[#444444]">{day.day}</div>

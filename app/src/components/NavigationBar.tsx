@@ -1,40 +1,82 @@
 import { useState } from 'react';
-import { Calendar, ChevronDown, Grid3X3, BarChart3, LayoutGrid } from 'lucide-react';
-import { MONTHS } from '@/data/mockData';
+import { Calendar, ChevronDown, Grid3X3, BarChart3, LayoutGrid, ChevronLeft, ChevronRight } from 'lucide-react';
+import { MONTHS } from '@/lib/stats';
 import type { ViewType } from '@/types';
 
 interface NavigationBarProps {
   currentView: ViewType;
   onViewChange: (view: ViewType) => void;
+  year: number;
+  month: number;
+  onYearChange: (year: number) => void;
+  onMonthChange: (month: number) => void;
 }
 
-export default function NavigationBar({ currentView, onViewChange }: NavigationBarProps) {
-  const [year, setYear] = useState(2026);
-  const [month, setMonth] = useState(0);
+export default function NavigationBar({
+  currentView,
+  onViewChange,
+  year,
+  month,
+  onYearChange,
+  onMonthChange,
+}: NavigationBarProps) {
   const [showYearDropdown, setShowYearDropdown] = useState(false);
   const [showMonthDropdown, setShowMonthDropdown] = useState(false);
 
-  const years = [2024, 2025, 2026, 2027];
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 7 }, (_, i) => currentYear - 3 + i);
+
+  const goToPrevMonth = () => {
+    if (month === 0) {
+      onMonthChange(11);
+      onYearChange(year - 1);
+    } else {
+      onMonthChange(month - 1);
+    }
+  };
+
+  const goToNextMonth = () => {
+    if (month === 11) {
+      onMonthChange(0);
+      onYearChange(year + 1);
+    } else {
+      onMonthChange(month + 1);
+    }
+  };
+
+  const goToToday = () => {
+    const now = new Date();
+    onYearChange(now.getFullYear());
+    onMonthChange(now.getMonth());
+  };
 
   return (
     <div className="h-12 flex items-center justify-between px-4 border-b border-[#444444] bg-[#111111]">
       {/* Left controls */}
       <div className="flex items-center gap-2">
+        {/* Prev / next month */}
+        <button
+          onClick={goToPrevMonth}
+          className="flex items-center justify-center w-7 h-7 border border-[#444444] bg-[#111111] text-[#CFCFCF] hover:border-[#2F80FF] hover:text-[#2F80FF] transition-colors duration-150"
+        >
+          <ChevronLeft className="w-3.5 h-3.5" />
+        </button>
+
         {/* Year selector */}
         <div className="relative">
           <button
-            onClick={() => setShowYearDropdown(!showYearDropdown)}
+            onClick={() => { setShowYearDropdown(!showYearDropdown); setShowMonthDropdown(false); }}
             className="flex items-center gap-1 px-3 py-1.5 border border-[#444444] bg-[#111111] text-white text-sm hover:border-[#2F80FF] transition-colors duration-150"
           >
             {year}
             <ChevronDown className="w-3 h-3 text-[#CFCFCF]" />
           </button>
           {showYearDropdown && (
-            <div className="absolute top-full left-0 mt-1 border border-[#444444] bg-[#111111] z-50 animate-fade-in">
+            <div className="absolute top-full left-0 mt-1 border border-[#444444] bg-[#111111] z-50 animate-fade-in max-h-48 overflow-y-auto">
               {years.map(y => (
                 <button
                   key={y}
-                  onClick={() => { setYear(y); setShowYearDropdown(false); }}
+                  onClick={() => { onYearChange(y); setShowYearDropdown(false); }}
                   className={`block w-full px-3 py-1.5 text-sm text-left hover:bg-[#2F80FF] hover:text-white transition-colors ${y === year ? 'text-[#2F80FF]' : 'text-white'}`}
                 >
                   {y}
@@ -47,7 +89,7 @@ export default function NavigationBar({ currentView, onViewChange }: NavigationB
         {/* Month selector */}
         <div className="relative">
           <button
-            onClick={() => setShowMonthDropdown(!showMonthDropdown)}
+            onClick={() => { setShowMonthDropdown(!showMonthDropdown); setShowYearDropdown(false); }}
             className="flex items-center gap-1 px-3 py-1.5 border border-[#444444] bg-[#111111] text-white text-sm hover:border-[#2F80FF] transition-colors duration-150"
           >
             {MONTHS[month]}
@@ -58,7 +100,7 @@ export default function NavigationBar({ currentView, onViewChange }: NavigationB
               {MONTHS.map((m, i) => (
                 <button
                   key={m}
-                  onClick={() => { setMonth(i); setShowMonthDropdown(false); }}
+                  onClick={() => { onMonthChange(i); setShowMonthDropdown(false); }}
                   className={`block w-full px-3 py-1.5 text-sm text-left hover:bg-[#2F80FF] hover:text-white transition-colors ${i === month ? 'text-[#2F80FF]' : 'text-white'}`}
                 >
                   {m}
@@ -68,8 +110,19 @@ export default function NavigationBar({ currentView, onViewChange }: NavigationB
           )}
         </div>
 
-        {/* Calendar button */}
-        <button className="flex items-center justify-center w-8 h-8 border border-[#444444] bg-[#111111] text-[#CFCFCF] hover:border-[#2F80FF] hover:text-[#2F80FF] transition-colors duration-150">
+        <button
+          onClick={goToNextMonth}
+          className="flex items-center justify-center w-7 h-7 border border-[#444444] bg-[#111111] text-[#CFCFCF] hover:border-[#2F80FF] hover:text-[#2F80FF] transition-colors duration-150"
+        >
+          <ChevronRight className="w-3.5 h-3.5" />
+        </button>
+
+        {/* Jump to today */}
+        <button
+          onClick={goToToday}
+          title="Jump to current month"
+          className="flex items-center justify-center w-8 h-8 border border-[#444444] bg-[#111111] text-[#CFCFCF] hover:border-[#2F80FF] hover:text-[#2F80FF] transition-colors duration-150"
+        >
           <Calendar className="w-4 h-4" />
         </button>
       </div>
