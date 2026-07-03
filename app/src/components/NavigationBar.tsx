@@ -1,0 +1,115 @@
+import { useState } from 'react';
+import { Calendar, ChevronDown, Grid3X3, BarChart3, LayoutGrid } from 'lucide-react';
+import { MONTHS } from '@/data/mockData';
+import type { ViewType } from '@/types';
+
+interface NavigationBarProps {
+  currentView: ViewType;
+  onViewChange: (view: ViewType) => void;
+}
+
+export default function NavigationBar({ currentView, onViewChange }: NavigationBarProps) {
+  const [year, setYear] = useState(2026);
+  const [month, setMonth] = useState(0);
+  const [showYearDropdown, setShowYearDropdown] = useState(false);
+  const [showMonthDropdown, setShowMonthDropdown] = useState(false);
+
+  const years = [2024, 2025, 2026, 2027];
+
+  return (
+    <div className="h-12 flex items-center justify-between px-4 border-b border-[#444444] bg-[#111111]">
+      {/* Left controls */}
+      <div className="flex items-center gap-2">
+        {/* Year selector */}
+        <div className="relative">
+          <button
+            onClick={() => setShowYearDropdown(!showYearDropdown)}
+            className="flex items-center gap-1 px-3 py-1.5 border border-[#444444] bg-[#111111] text-white text-sm hover:border-[#2F80FF] transition-colors duration-150"
+          >
+            {year}
+            <ChevronDown className="w-3 h-3 text-[#CFCFCF]" />
+          </button>
+          {showYearDropdown && (
+            <div className="absolute top-full left-0 mt-1 border border-[#444444] bg-[#111111] z-50 animate-fade-in">
+              {years.map(y => (
+                <button
+                  key={y}
+                  onClick={() => { setYear(y); setShowYearDropdown(false); }}
+                  className={`block w-full px-3 py-1.5 text-sm text-left hover:bg-[#2F80FF] hover:text-white transition-colors ${y === year ? 'text-[#2F80FF]' : 'text-white'}`}
+                >
+                  {y}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Month selector */}
+        <div className="relative">
+          <button
+            onClick={() => setShowMonthDropdown(!showMonthDropdown)}
+            className="flex items-center gap-1 px-3 py-1.5 border border-[#444444] bg-[#111111] text-white text-sm hover:border-[#2F80FF] transition-colors duration-150"
+          >
+            {MONTHS[month]}
+            <ChevronDown className="w-3 h-3 text-[#CFCFCF]" />
+          </button>
+          {showMonthDropdown && (
+            <div className="absolute top-full left-0 mt-1 border border-[#444444] bg-[#111111] z-50 animate-fade-in max-h-48 overflow-y-auto">
+              {MONTHS.map((m, i) => (
+                <button
+                  key={m}
+                  onClick={() => { setMonth(i); setShowMonthDropdown(false); }}
+                  className={`block w-full px-3 py-1.5 text-sm text-left hover:bg-[#2F80FF] hover:text-white transition-colors ${i === month ? 'text-[#2F80FF]' : 'text-white'}`}
+                >
+                  {m}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Calendar button */}
+        <button className="flex items-center justify-center w-8 h-8 border border-[#444444] bg-[#111111] text-[#CFCFCF] hover:border-[#2F80FF] hover:text-[#2F80FF] transition-colors duration-150">
+          <Calendar className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Right view toggles */}
+      <div className="flex items-center gap-1">
+        <button
+          onClick={() => onViewChange('grid')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 text-sm border transition-colors duration-150 ${
+            currentView === 'grid'
+              ? 'bg-[#2F80FF] border-[#2F80FF] text-white'
+              : 'border-[#444444] text-[#CFCFCF] hover:border-[#2F80FF]'
+          }`}
+        >
+          <Grid3X3 className="w-3.5 h-3.5" />
+          Grid
+        </button>
+        <button
+          onClick={() => onViewChange('calendar')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 text-sm border transition-colors duration-150 ${
+            currentView === 'calendar'
+              ? 'bg-[#2F80FF] border-[#2F80FF] text-white'
+              : 'border-[#444444] text-[#CFCFCF] hover:border-[#2F80FF]'
+          }`}
+        >
+          <LayoutGrid className="w-3.5 h-3.5" />
+          Calendar
+        </button>
+        <button
+          onClick={() => onViewChange('stats')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 text-sm border transition-colors duration-150 ${
+            currentView === 'stats'
+              ? 'bg-[#2F80FF] border-[#2F80FF] text-white'
+              : 'border-[#444444] text-[#CFCFCF] hover:border-[#2F80FF]'
+          }`}
+        >
+          <BarChart3 className="w-3.5 h-3.5" />
+          Stats
+        </button>
+      </div>
+    </div>
+  );
+}
